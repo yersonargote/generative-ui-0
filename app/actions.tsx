@@ -174,7 +174,7 @@ async function submit(formData?: FormData, skip?: boolean) {
           : msg
       ) as CoreMessage[]
 
-      let assAnswer = await pooAssistant(uiStream, streamText, modifiedMessages)
+      let assAnswer = await pooAssistant(streamText, modifiedMessages)
       answer = `${answer}${assAnswer}`
       // answer = await writer(uiStream, streamText, modifiedMessages)
     } else {

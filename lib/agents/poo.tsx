@@ -1,7 +1,7 @@
 'use server'
 
 import { CoreMessage, nanoid } from 'ai'
-import { createStreamableUI, createStreamableValue } from 'ai/rsc'
+import { createStreamableValue } from 'ai/rsc'
 import OpenAI from 'openai'
 
 var plantumlEncoder = require('plantuml-encoder')
@@ -15,7 +15,6 @@ let RUN_ID = ''
 const ASSISTANT_ID = process.env.OPENAI_ASSISTANT_ID || ''
 
 export async function pooAssistant(
-  uiStream: ReturnType<typeof createStreamableUI>,
   streamText: ReturnType<typeof createStreamableValue<string>>,
   messages: CoreMessage[]
 ) {
