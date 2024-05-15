@@ -1,17 +1,17 @@
-import { createStreamableUI, createStreamableValue } from 'ai/rsc'
+import { BotMessage } from '@/components/message'
+import { SearchSection } from '@/components/search-section'
+import { Section } from '@/components/section'
+import { Card } from '@/components/ui/card'
+import { searchSchema } from '@/lib/schema/search'
+import { OpenAI } from '@ai-sdk/openai'
 import {
   CoreMessage,
   ToolCallPart,
   ToolResultPart,
   streamText as nonexperimental_streamText
 } from 'ai'
-import { searchSchema } from '@/lib/schema/search'
-import { Section } from '@/components/section'
-import { OpenAI } from '@ai-sdk/openai'
-import { BotMessage } from '@/components/message'
+import { createStreamableUI, createStreamableValue } from 'ai/rsc'
 import Exa from 'exa-js'
-import { Card } from '@/components/ui/card'
-import { SearchSection } from '@/components/search-section'
 
 export async function researcher(
   uiStream: ReturnType<typeof createStreamableUI>,
@@ -39,11 +39,12 @@ export async function researcher(
   const result = await nonexperimental_streamText({
     model: openai.chat(process.env.OPENAI_API_MODEL || 'gpt-4o'),
     maxTokens: 2500,
-    system: `As a professional search expert, you possess the ability to search for any information on the web. 
+    system: `As a professional programming search expert, you possess the ability to search for any information on the web. 
     For each user query, utilize the search results to their fullest potential to provide additional information and assistance in your response.
     If there are any images relevant to your answer, be sure to include them as well.
     Aim to directly address the user's question, augmenting your response with insights gleaned from the search results.
     Whenever quoting or referencing information from a specific URL, always cite the source URL explicitly.
+    If you need code snippets, use only Java.
     Please match the language of the response to the user's language.`,
     messages,
     tools: {

@@ -1,3 +1,21 @@
+import { CopilotDisplay } from '@/components/copilot-display'
+import { FollowupPanel } from '@/components/followup-panel'
+import { BotMessage } from '@/components/message'
+import SearchRelated from '@/components/search-related'
+import { SearchSection } from '@/components/search-section'
+import { Section } from '@/components/section'
+import { Spinner } from '@/components/ui/spinner'
+import { UserMessage } from '@/components/user-message'
+import { saveChat } from '@/lib/actions/chat'
+import {
+  inquire,
+  pooAssistant,
+  querySuggestor,
+  researcher,
+  taskManager
+} from '@/lib/agents'
+import { AIMessage, Chat } from '@/lib/types'
+import { CoreMessage, ToolResultPart, nanoid } from 'ai'
 import {
   StreamableValue,
   createAI,
@@ -6,20 +24,6 @@ import {
   getAIState,
   getMutableAIState
 } from 'ai/rsc'
-import { CoreMessage, nanoid, ToolResultPart } from 'ai'
-import { Spinner } from '@/components/ui/spinner'
-import { Section } from '@/components/section'
-import { FollowupPanel } from '@/components/followup-panel'
-import { inquire, researcher, taskManager, querySuggestor } from '@/lib/agents'
-import { writer } from '@/lib/agents/writer'
-import { saveChat } from '@/lib/actions/chat'
-import { Chat } from '@/lib/types'
-import { AIMessage } from '@/lib/types'
-import { UserMessage } from '@/components/user-message'
-import { BotMessage } from '@/components/message'
-import { SearchSection } from '@/components/search-section'
-import SearchRelated from '@/components/search-related'
-import { CopilotDisplay } from '@/components/copilot-display'
 
 async function submit(formData?: FormData, skip?: boolean) {
   'use server'
@@ -28,6 +32,7 @@ async function submit(formData?: FormData, skip?: boolean) {
   const uiStream = createStreamableUI()
   const isGenerating = createStreamableValue(true)
   const isCollapsed = createStreamableValue(false)
+  let assAnswer
   // Get the messages from the state, filter out the tool messages
   const messages: CoreMessage[] = [...(aiState.get().messages as any[])].filter(
     message =>
@@ -155,7 +160,8 @@ async function submit(formData?: FormData, skip?: boolean) {
     }
 
     // If useSpecificAPI is enabled, generate the answer using the specific model
-    if (useSpecificAPI && answer.length === 0) {
+    answer = `${answer}\n`
+    if (useSpecificAPI) {
       // modify the messages to be used by the specific model
       const modifiedMessages = aiState.get().messages.map(msg =>
         msg.role === 'tool'
@@ -167,7 +173,10 @@ async function submit(formData?: FormData, skip?: boolean) {
             }
           : msg
       ) as CoreMessage[]
-      answer = await writer(uiStream, streamText, modifiedMessages)
+
+      let assAnswer = await pooAssistant(uiStream, streamText, modifiedMessages)
+      answer = `${answer}${assAnswer}`
+      // answer = await writer(uiStream, streamText, modifiedMessages)
     } else {
       streamText.done()
     }

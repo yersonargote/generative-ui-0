@@ -1,6 +1,6 @@
+import { getChats } from '@/lib/actions/chat'
 import { cache } from 'react'
 import { History } from './history'
-import { getChats } from '@/lib/actions/chat'
 
 const loadChats = cache(async (userId?: string) => {
   return await getChats(userId)
