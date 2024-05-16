@@ -177,7 +177,7 @@ async function submit(formData?: FormData, skip?: boolean) {
       const relatedQueries = await querySuggestor(uiStream, messages)
       // Add follow-up panel
       uiStream.append(
-        <Section title="Follow-up">
+        <Section title="Seguimiento">
           <FollowupPanel />
         </Section>
       )
@@ -350,7 +350,7 @@ export const getUIStateFromAIState = (aiState: Chat) => {
               return {
                 id,
                 component: (
-                  <Section title="Answer">
+                  <Section title="Respuesta">
                     <BotMessage content={answer.value} />
                   </Section>
                 )
@@ -361,7 +361,7 @@ export const getUIStateFromAIState = (aiState: Chat) => {
               return {
                 id,
                 component: (
-                  <Section title="Related" separator={true}>
+                  <Section title="Relacionado" separator={true}>
                     <SearchRelated relatedQueries={relatedQueries.value} />
                   </Section>
                 )
@@ -370,7 +370,7 @@ export const getUIStateFromAIState = (aiState: Chat) => {
               return {
                 id,
                 component: (
-                  <Section title="Follow-up" className="pb-8">
+                  <Section title="Seguimiento" className="pb-8">
                     <FollowupPanel />
                   </Section>
                 )

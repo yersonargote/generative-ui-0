@@ -24,7 +24,7 @@ export async function writer(
   }
   let fullResponse = ''
   const answerSection = (
-    <Section title="Answer">
+    <Section title="Respuesta">
       <BotMessage content={streamText.value} />
     </Section>
   )
