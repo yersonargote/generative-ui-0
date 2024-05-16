@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useTransition } from 'react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +13,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { clearChats } from '@/lib/actions/chat'
+import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
 import { Spinner } from './ui/spinner'
 
@@ -28,19 +28,19 @@ export function ClearHistory({ empty }: ClearHistoryProps) {
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
         <Button variant="outline" className="w-full" disabled={empty}>
-          Clear History
+          Borrar Historial
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            history and remove your data from our servers.
+            Esta acción no se puede deshacer. Esto eliminará permanentemente tu
+            historial y eliminará tus datos de nuestros servidores.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
           <AlertDialogAction
             disabled={isPending}
             onClick={event => {
@@ -50,13 +50,13 @@ export function ClearHistory({ empty }: ClearHistoryProps) {
                 if (result?.error) {
                   toast.error(result.error)
                 } else {
-                  toast.success('History cleared')
+                  toast.success('Historial borrado')
                 }
                 setOpen(false)
               })
             }}
           >
-            {isPending ? <Spinner /> : 'Clear'}
+            {isPending ? <Spinner /> : 'Borrar'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
