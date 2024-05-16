@@ -18,8 +18,10 @@ export async function pooAssistant(
   streamText: ReturnType<typeof createStreamableValue<string>>,
   messages: CoreMessage[]
 ) {
-  const lastMessage = messages[messages.length - 1]
-  const question = JSON.parse(lastMessage.content as string)?.input
+  const userMessage = messages[messages.length - 2]
+  const researcherMessage = messages[messages.length - 1]
+  const question = userMessage.content as string
+  const answer = researcherMessage.content as string
   let fullResponse = ''
 
   const runQueue = []
@@ -42,7 +44,10 @@ export async function pooAssistant(
         assistant_id: ASSISTANT_ID,
         stream: true,
         thread: {
-          messages: [{ role: 'user', content: question }]
+          messages: [
+            { role: 'user', content: question },
+            { role: 'assistant', content: answer }
+          ]
         }
       })
 

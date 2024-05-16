@@ -32,7 +32,6 @@ async function submit(formData?: FormData, skip?: boolean) {
   const uiStream = createStreamableUI()
   const isGenerating = createStreamableValue(true)
   const isCollapsed = createStreamableValue(false)
-  let assAnswer
   // Get the messages from the state, filter out the tool messages
   const messages: CoreMessage[] = [...(aiState.get().messages as any[])].filter(
     message =>
@@ -124,11 +123,13 @@ async function submit(formData?: FormData, skip?: boolean) {
 
     // If useSpecificAPI is enabled, only function calls will be made
     // If not using a tool, this model generates the answer
+    let counter = 0
     while (
       useSpecificAPI
         ? toolOutputs.length === 0 && answer.length === 0
         : answer.length === 0
     ) {
+      counter++
       // Search the web and generate the answer
       const { fullResponse, hasError, toolResponses } = await researcher(
         uiStream,
@@ -158,9 +159,9 @@ async function submit(formData?: FormData, skip?: boolean) {
         })
       }
     }
+    console.log('counter', counter)
 
     // If useSpecificAPI is enabled, generate the answer using the specific model
-    answer = `${answer}\n`
     if (useSpecificAPI) {
       // modify the messages to be used by the specific model
       const modifiedMessages = aiState.get().messages.map(msg =>
@@ -174,8 +175,12 @@ async function submit(formData?: FormData, skip?: boolean) {
           : msg
       ) as CoreMessage[]
 
-      let assAnswer = await pooAssistant(streamText, modifiedMessages)
-      answer = `${answer}${assAnswer}`
+      modifiedMessages.push({
+        role: 'assistant',
+        content: answer
+      })
+
+      answer = await pooAssistant(streamText, modifiedMessages)
       // answer = await writer(uiStream, streamText, modifiedMessages)
     } else {
       streamText.done()
