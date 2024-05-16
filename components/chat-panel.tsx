@@ -1,17 +1,16 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import type { AI, UIState } from '@/app/actions'
-import { useUIState, useActions } from 'ai/rsc'
 import { cn } from '@/lib/utils'
-import { UserMessage } from './user-message'
-import { Input } from './ui/input'
-import { Button } from './ui/button'
-import { ArrowRight, Plus } from 'lucide-react'
-import { EmptyScreen } from './empty-screen'
-import Textarea from 'react-textarea-autosize'
 import { nanoid } from 'ai'
+import { useActions, useUIState } from 'ai/rsc'
+import { ArrowRight, Plus } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import Textarea from 'react-textarea-autosize'
+import { EmptyScreen } from './empty-screen'
+import { Button } from './ui/button'
+import { UserMessage } from './user-message'
 
 interface ChatPanelProps {
   messages: UIState
@@ -100,7 +99,7 @@ export function ChatPanel({ messages }: ChatPanelProps) {
             rows={1}
             maxRows={5}
             tabIndex={0}
-            placeholder="Ask a question..."
+            placeholder="Haz una pregunta..."
             spellCheck={false}
             value={input}
             className="resize-none w-full min-h-12 rounded-fill bg-muted border border-input pl-4 pr-10 pt-3 pb-1 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'"

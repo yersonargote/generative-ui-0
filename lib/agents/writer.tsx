@@ -1,9 +1,9 @@
-import { OpenAI } from '@ai-sdk/openai'
-import { createStreamableUI, createStreamableValue } from 'ai/rsc'
-import { CoreMessage, streamText as nonexperimental_streamText } from 'ai'
-import { Section } from '@/components/section'
 import { BotMessage } from '@/components/message'
+import { Section } from '@/components/section'
 import { createAnthropic } from '@ai-sdk/anthropic'
+import { OpenAI } from '@ai-sdk/openai'
+import { CoreMessage, streamText as nonexperimental_streamText } from 'ai'
+import { createStreamableUI, createStreamableValue } from 'ai/rsc'
 export async function writer(
   uiStream: ReturnType<typeof createStreamableUI>,
   streamText: ReturnType<typeof createStreamableValue<string>>,

@@ -3,20 +3,20 @@ import { ArrowRight } from 'lucide-react'
 
 const exampleMessages = [
   {
-    heading: "What's new with the iPad Pro?",
-    message: "What's new with the iPad Pro?"
+    heading: '¿Qué es una clase en programación?',
+    message: '¿Qué es una clase en programación?'
   },
   {
-    heading: 'Why is Nvidia growing rapidly?',
-    message: 'Why is Nvidia growing rapidly?'
+    heading: '¿Qué es un atributo en programación?',
+    message: '¿Qué es un atributo en programación?'
   },
   {
-    heading: 'How does the Vercel AI SDK work?',
-    message: 'How does the Vercel AI SDK work?'
+    heading: '¿Qué es un método en programación?',
+    message: '¿Qué es un método en programación?'
   },
   {
-    heading: 'Tesla vs Rivian',
-    message: 'Tesla vs Rivian'
+    heading: '¿Qué es un objeto en programación?',
+    message: '¿Qué es un objeto en programación?'
   }
 ]
 export function EmptyScreen({

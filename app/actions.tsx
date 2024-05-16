@@ -1,3 +1,16 @@
+import { CopilotDisplay } from '@/components/copilot-display'
+import { FollowupPanel } from '@/components/followup-panel'
+import { BotMessage } from '@/components/message'
+import SearchRelated from '@/components/search-related'
+import { SearchSection } from '@/components/search-section'
+import { Section } from '@/components/section'
+import { Spinner } from '@/components/ui/spinner'
+import { UserMessage } from '@/components/user-message'
+import { saveChat } from '@/lib/actions/chat'
+import { inquire, querySuggestor, researcher, taskManager } from '@/lib/agents'
+import { writer } from '@/lib/agents/writer'
+import { AIMessage, Chat } from '@/lib/types'
+import { CoreMessage, ToolResultPart, nanoid } from 'ai'
 import {
   StreamableValue,
   createAI,
@@ -6,20 +19,6 @@ import {
   getAIState,
   getMutableAIState
 } from 'ai/rsc'
-import { CoreMessage, nanoid, ToolResultPart } from 'ai'
-import { Spinner } from '@/components/ui/spinner'
-import { Section } from '@/components/section'
-import { FollowupPanel } from '@/components/followup-panel'
-import { inquire, researcher, taskManager, querySuggestor } from '@/lib/agents'
-import { writer } from '@/lib/agents/writer'
-import { saveChat } from '@/lib/actions/chat'
-import { Chat } from '@/lib/types'
-import { AIMessage } from '@/lib/types'
-import { UserMessage } from '@/components/user-message'
-import { BotMessage } from '@/components/message'
-import { SearchSection } from '@/components/search-section'
-import SearchRelated from '@/components/search-related'
-import { CopilotDisplay } from '@/components/copilot-display'
 
 async function submit(formData?: FormData, skip?: boolean) {
   'use server'
@@ -119,7 +118,7 @@ async function submit(formData?: FormData, skip?: boolean) {
 
     // If useSpecificAPI is enabled, only function calls will be made
     // If not using a tool, this model generates the answer
-    while (
+    if (
       useSpecificAPI
         ? toolOutputs.length === 0 && answer.length === 0
         : answer.length === 0
@@ -155,8 +154,8 @@ async function submit(formData?: FormData, skip?: boolean) {
     }
 
     // If useSpecificAPI is enabled, generate the answer using the specific model
+    // modify the messages to be used by the specific model
     if (useSpecificAPI && answer.length === 0) {
-      // modify the messages to be used by the specific model
       const modifiedMessages = aiState.get().messages.map(msg =>
         msg.role === 'tool'
           ? {
