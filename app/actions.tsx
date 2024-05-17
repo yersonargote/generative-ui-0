@@ -7,7 +7,13 @@ import { Section } from '@/components/section'
 import { Spinner } from '@/components/ui/spinner'
 import { UserMessage } from '@/components/user-message'
 import { saveChat } from '@/lib/actions/chat'
-import { inquire, querySuggestor, researcher, taskManager } from '@/lib/agents'
+import {
+  inquire,
+  querySuggestor,
+  researcher,
+  resources,
+  taskManager
+} from '@/lib/agents'
 import { writer } from '@/lib/agents/writer'
 import { AIMessage, Chat } from '@/lib/types'
 import { CoreMessage, ToolResultPart, nanoid } from 'ai'
@@ -155,22 +161,23 @@ async function submit(formData?: FormData, skip?: boolean) {
 
     // If useSpecificAPI is enabled, generate the answer using the specific model
     // modify the messages to be used by the specific model
+    const modifiedMessages = aiState.get().messages.map(msg =>
+      msg.role === 'tool'
+        ? {
+            ...msg,
+            role: 'assistant',
+            content: JSON.stringify(msg.content),
+            type: 'tool'
+          }
+        : msg
+    ) as CoreMessage[]
     if (useSpecificAPI && answer.length === 0) {
-      const modifiedMessages = aiState.get().messages.map(msg =>
-        msg.role === 'tool'
-          ? {
-              ...msg,
-              role: 'assistant',
-              content: JSON.stringify(msg.content),
-              type: 'tool'
-            }
-          : msg
-      ) as CoreMessage[]
       const latestMessages = modifiedMessages.slice(maxMessages * -1)
       answer = await writer(uiStream, streamText, latestMessages)
     } else {
       streamText.done()
     }
+    const res = await resources(uiStream, modifiedMessages)
 
     if (!errorOccurred) {
       // Generate related queries
@@ -201,6 +208,12 @@ async function submit(formData?: FormData, skip?: boolean) {
             role: 'assistant',
             content: JSON.stringify(relatedQueries),
             type: 'related'
+          },
+          {
+            id: groupeId,
+            role: 'assistant',
+            content: res,
+            type: 'answer'
           },
           {
             id: groupeId,
