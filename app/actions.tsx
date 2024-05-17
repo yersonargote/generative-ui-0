@@ -9,10 +9,12 @@ import { UserMessage } from '@/components/user-message'
 import { saveChat } from '@/lib/actions/chat'
 import {
   inquire,
+  linker,
   querySuggestor,
   researcher,
   resources,
-  taskManager
+  taskManager,
+  uml
 } from '@/lib/agents'
 import { writer } from '@/lib/agents/writer'
 import { AIMessage, Chat } from '@/lib/types'
@@ -159,8 +161,7 @@ async function submit(formData?: FormData, skip?: boolean) {
       }
     }
 
-    // If useSpecificAPI is enabled, generate the answer using the specific model
-    // modify the messages to be used by the specific model
+    // Modify the messages to store the tool outputs
     const modifiedMessages = aiState.get().messages.map(msg =>
       msg.role === 'tool'
         ? {
@@ -171,6 +172,7 @@ async function submit(formData?: FormData, skip?: boolean) {
           }
         : msg
     ) as CoreMessage[]
+
     if (useSpecificAPI && answer.length === 0) {
       const latestMessages = modifiedMessages.slice(maxMessages * -1)
       answer = await writer(uiStream, streamText, latestMessages)
@@ -178,6 +180,35 @@ async function submit(formData?: FormData, skip?: boolean) {
       streamText.done()
     }
     const res = await resources(uiStream, modifiedMessages)
+
+    // Generate UML diagrams
+    const { toolResponses: umlToolRes } = await uml(answer)
+
+    if (umlToolRes.length > 0) {
+      umlToolRes.map(output => {
+        aiState.update({
+          ...aiState.get(),
+          messages: [
+            ...aiState.get().messages,
+            {
+              id: groupeId,
+              role: 'tool',
+              content: JSON.stringify(output.result),
+              name: output.toolName,
+              type: 'tool'
+            }
+          ]
+        })
+      })
+    }
+    const umlMessages = umlToolRes.map(output => ({
+      role: 'assistant',
+      content: JSON.stringify(output.result),
+      name: output.toolName,
+      type: 'tool'
+    })) as CoreMessage[]
+
+    const linkerRes = await linker(uiStream, umlMessages)
 
     if (!errorOccurred) {
       // Generate related queries
@@ -213,6 +244,12 @@ async function submit(formData?: FormData, skip?: boolean) {
             id: groupeId,
             role: 'assistant',
             content: res,
+            type: 'answer'
+          },
+          {
+            id: groupeId,
+            role: 'assistant',
+            content: linkerRes,
             type: 'answer'
           },
           {

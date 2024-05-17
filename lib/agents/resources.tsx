@@ -32,7 +32,7 @@ export async function resources(
   const textStream = createStreamableValue<string>()
 
   uiStream.append(
-    <Section title="Respuesta" separator={true}>
+    <Section title="Recursos" separator={true}>
       <BotMessage content={textStream.value} />
     </Section>
   )
