@@ -68,7 +68,6 @@ Current date and time: ${currentDate}`,
     tools: getTools({
       uiStream,
       fullResponse,
-      hasError,
       isFirstToolResponse
     })
   })
@@ -95,8 +94,11 @@ Current date and time: ${currentDate}`,
         break
       case 'tool-result':
         // Append the answer section if the specific model is not used
-        if (!useSpecificModel && toolResponses.length === 0) {
+        if (!useSpecificModel && toolResponses.length === 0 && delta.result) {
           uiStream.append(answerSection)
+        }
+        if (!delta.result) {
+          hasError = true
         }
         toolResponses.push(delta)
         break
