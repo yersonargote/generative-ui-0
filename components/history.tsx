@@ -37,7 +37,7 @@ export function History({ location }: HistoryProps) {
             Historial
           </SheetTitle>
         </SheetHeader>
-        <div className="my-2 h-[calc(100vh-4.5rem)]">
+        <div className="my-2 h-full pb-12 md:pb-10">
           <Suspense fallback={<HistorySkeleton />}>
             <HistoryList userId="anonymous" />
           </Suspense>
