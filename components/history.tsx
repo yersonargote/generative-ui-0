@@ -2,23 +2,21 @@ import { Button } from '@/components/ui/button'
 import {
   Sheet,
   SheetContent,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet'
-import { Chat } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { ChevronLeft, History as HistoryIcon, Menu } from 'lucide-react'
-import { ClearHistory } from './clear-history'
-import HistoryItem from './history-item'
+import { Suspense } from 'react'
+import { HistoryList } from './history-list'
+import { HistorySkeleton } from './history-skelton'
 
 type HistoryProps = {
   location: 'sidebar' | 'header'
-  chats: Chat[]
 }
 
-export function History({ location, chats }: HistoryProps) {
+export function History({ location }: HistoryProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -39,20 +37,11 @@ export function History({ location, chats }: HistoryProps) {
             Historial
           </SheetTitle>
         </SheetHeader>
-        <div className="my-2 overflow-y-auto h-[calc(100vh-7.5rem)]">
-          {!chats?.length ? (
-            <div className="text-foreground/30 text-sm text-center py-4">
-              No hay historial de búsqueda
-            </div>
-          ) : (
-            chats?.map(
-              (chat: Chat) => chat && <HistoryItem key={chat.id} chat={chat} />
-            )
-          )}
+        <div className="my-2 h-[calc(100vh-4.5rem)]">
+          <Suspense fallback={<HistorySkeleton />}>
+            <HistoryList userId="anonymous" />
+          </Suspense>
         </div>
-        <SheetFooter>
-          <ClearHistory empty={!chats?.length} />
-        </SheetFooter>
       </SheetContent>
     </Sheet>
   )
