@@ -1,8 +1,8 @@
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
 import { OpenAI } from '@ai-sdk/openai'
-import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { createAnthropic } from '@ai-sdk/anthropic'
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+// import { createGoogleGenerativeAI } from '@ai-sdk/google'
+// import { createAnthropic } from '@ai-sdk/anthropic'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -26,4 +26,35 @@ export function getModel() {
     organization: '' // optional organization
   })
   return openai.chat(process.env.OPENAI_API_MODEL || 'gpt-4o')
+}
+
+export const getStringFromBuffer = (buffer: ArrayBuffer) =>
+  Array.from(new Uint8Array(buffer))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('')
+
+export enum ResultCode {
+  InvalidCredentials = 'INVALID_CREDENTIALS',
+  InvalidSubmission = 'INVALID_SUBMISSION',
+  UserAlreadyExists = 'USER_ALREADY_EXISTS',
+  UnknownError = 'UNKNOWN_ERROR',
+  UserCreated = 'USER_CREATED',
+  UserLoggedIn = 'USER_LOGGED_IN'
+}
+
+export const getMessageFromCode = (resultCode: string) => {
+  switch (resultCode) {
+    case ResultCode.InvalidCredentials:
+      return 'Invalid credentials!'
+    case ResultCode.InvalidSubmission:
+      return 'Invalid submission, please try again!'
+    case ResultCode.UserAlreadyExists:
+      return 'User already exists, please log in!'
+    case ResultCode.UserCreated:
+      return 'User created, welcome!'
+    case ResultCode.UnknownError:
+      return 'Something went wrong, please try again!'
+    case ResultCode.UserLoggedIn:
+      return 'Logged in!'
+  }
 }
