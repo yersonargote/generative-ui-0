@@ -46,7 +46,9 @@ export async function resources(
 
       const run = await openai.beta.threads.runs.create(THREAD_ID, {
         assistant_id: ASSISTANT_ID,
-        stream: true
+        stream: true,
+        temperature: 1,
+        top_p: 1
       })
 
       runQueue.push({ id: nanoid(), run })
