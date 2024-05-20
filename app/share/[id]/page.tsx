@@ -1,7 +1,9 @@
-import { notFound } from 'next/navigation'
-import { Chat } from '@/components/chat'
-import { getSharedChat } from '@/lib/actions/chat'
 import { AI } from '@/app/actions'
+import { auth } from '@/auth'
+import { Chat } from '@/components/chat'
+import { getMissingKeys, getSharedChat } from '@/lib/actions/chat'
+import { Session } from '@/lib/types'
+import { notFound } from 'next/navigation'
 
 export interface SharePageProps {
   params: {
@@ -23,6 +25,8 @@ export async function generateMetadata({ params }: SharePageProps) {
 
 export default async function SharePage({ params }: SharePageProps) {
   const chat = await getSharedChat(params.id)
+  const session = (await auth()) as Session
+  const missingKeys = await getMissingKeys()
 
   if (!chat || !chat.sharePath) {
     notFound()
@@ -36,7 +40,7 @@ export default async function SharePage({ params }: SharePageProps) {
         isSharePage: true
       }}
     >
-      <Chat id={params.id} />
+      <Chat id={params.id} missingKeys={missingKeys} session={session} />
     </AI>
   )
 }

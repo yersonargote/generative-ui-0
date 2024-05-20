@@ -16,11 +16,10 @@ export interface SearchPageProps {
 export async function generateMetadata({ params }: SearchPageProps) {
   const session = await auth()
 
-  if (!session) {
-    return {}
-  }
+  const userId =
+    session && session.user ? (session.user.id as string) : 'anonymous'
 
-  const chat = await getChat(params.id, 'anonymous')
+  const chat = await getChat(params.id, userId)
   return {
     title: chat?.title.toString().slice(0, 50) || 'Search'
   }
@@ -29,18 +28,16 @@ export async function generateMetadata({ params }: SearchPageProps) {
 export default async function SearchPage({ params }: SearchPageProps) {
   const session = (await auth()) as Session
   const missingKeys = await getMissingKeys()
-  if (!session?.user) {
-    redirect(`/login?next=/search/${params.id}`)
-  }
 
-  const userId = session.user.id as string
+  const userId = session?.user?.id || 'anonymous'
+
   const chat = await getChat(params.id, userId)
 
   if (!chat) {
     redirect('/')
   }
 
-  if (chat?.userId !== session?.user?.id) {
+  if (chat?.userId !== userId) {
     notFound()
   }
 

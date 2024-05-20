@@ -13,7 +13,7 @@ type ChatProps = {
   initialMessages?: AIMessage[]
   id?: string
   session?: Session
-  missingKeys: string[]
+  missingKeys?: string[]
 }
 
 export function Chat({ id, session, missingKeys }: ChatProps) {
@@ -25,10 +25,8 @@ export function Chat({ id, session, missingKeys }: ChatProps) {
   const [_, setNewSearchId] = useLocalStorage('newSearchId', id)
 
   useEffect(() => {
-    if (session?.user) {
-      if (!path.includes('search') && messages.length === 1) {
-        window.history.replaceState({}, '', `/search/${id}`)
-      }
+    if (!path.includes('search') && messages.length === 1) {
+      window.history.replaceState({}, '', `/search/${id}`)
     }
   }, [id, path, session?.user, messages])
 

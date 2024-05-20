@@ -1,3 +1,4 @@
+import { auth } from '@/auth'
 import { CopilotDisplay } from '@/components/copilot-display'
 import { FollowupPanel } from '@/components/followup-panel'
 import { BotMessage } from '@/components/message'
@@ -323,9 +324,12 @@ export const AI = createAI<AIState, UIState>({
       return
     }
 
+    const session = await auth()
+
     const { chatId, messages } = state
     const createdAt = new Date()
-    const userId = 'anonymous'
+    const userId =
+      session && session.user ? (session.user.id as string) : 'anonymous'
     const path = `/search/${chatId}`
     const title =
       messages.length > 0

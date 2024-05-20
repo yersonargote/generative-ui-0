@@ -14,9 +14,10 @@ import { HistorySkeleton } from './history-skelton'
 
 type HistoryProps = {
   location: 'sidebar' | 'header'
+  userId?: string
 }
 
-export function History({ location }: HistoryProps) {
+export function History({ location, userId }: HistoryProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -39,7 +40,7 @@ export function History({ location }: HistoryProps) {
         </SheetHeader>
         <div className="my-2 h-full pb-12 md:pb-10">
           <Suspense fallback={<HistorySkeleton />}>
-            <HistoryList userId="anonymous" />
+            <HistoryList userId={userId} />
           </Suspense>
         </div>
       </SheetContent>
