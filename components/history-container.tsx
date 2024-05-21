@@ -3,14 +3,16 @@ import { History } from './history'
 
 type HistoryContainerProps = {
   location: 'sidebar' | 'header'
+  userId?: string
 }
 
 const HistoryContainer: React.FC<HistoryContainerProps> = async ({
-  location
+  location,
+  userId
 }) => {
   return (
     <div className="sm:hidden block">
-      <History location={location} />
+      <History location={location} userId={userId} />
     </div>
   )
 }

@@ -1,7 +1,9 @@
-import { notFound, redirect } from 'next/navigation'
-import { Chat } from '@/components/chat'
-import { getChat } from '@/lib/actions/chat'
 import { AI } from '@/app/actions'
+import { auth } from '@/auth'
+import { Chat } from '@/components/chat'
+import { getChat, getMissingKeys } from '@/lib/actions/chat'
+import { Session } from '@/lib/types'
+import { notFound, redirect } from 'next/navigation'
 
 export const maxDuration = 60
 
@@ -12,14 +14,23 @@ export interface SearchPageProps {
 }
 
 export async function generateMetadata({ params }: SearchPageProps) {
-  const chat = await getChat(params.id, 'anonymous')
+  const session = await auth()
+
+  const userId =
+    session && session.user ? (session.user.id as string) : 'anonymous'
+
+  const chat = await getChat(params.id, userId)
   return {
     title: chat?.title.toString().slice(0, 50) || 'Search'
   }
 }
 
 export default async function SearchPage({ params }: SearchPageProps) {
-  const userId = 'anonymous'
+  const session = (await auth()) as Session
+  const missingKeys = await getMissingKeys()
+
+  const userId = session?.user?.id || 'anonymous'
+
   const chat = await getChat(params.id, userId)
 
   if (!chat) {
@@ -37,7 +48,12 @@ export default async function SearchPage({ params }: SearchPageProps) {
         messages: chat.messages
       }}
     >
-      <Chat id={params.id} />
+      <Chat
+        id={params.id}
+        session={session}
+        initialMessages={chat.messages}
+        missingKeys={missingKeys}
+      />
     </AI>
   )
 }
