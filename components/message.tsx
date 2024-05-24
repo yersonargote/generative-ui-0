@@ -2,13 +2,50 @@
 
 import { StreamableValue, useStreamableValue } from 'ai/rsc'
 import 'katex/dist/katex.min.css'
-import React from 'react'
+import mermaid from 'mermaid'
+import React, { useEffect, useRef, useState } from 'react'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeKatex from 'rehype-katex'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import { CodeBlock } from './ui/codeblock'
 import { MemoizedReactMarkdown } from './ui/markdown'
+
+export function Mermaid(props: { code: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [hasError, setHasError] = useState(false)
+
+  useEffect(() => {
+    if (props.code && ref.current) {
+      mermaid
+        .run({
+          nodes: [ref.current],
+          suppressErrors: true
+        })
+        .catch(e => {
+          setHasError(true)
+          console.error('[Mermaid] ', e.message)
+        })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.code])
+  if (hasError) {
+    return null
+  }
+
+  return (
+    <div
+      className="no-dark mermaid"
+      style={{
+        cursor: 'pointer',
+        overflow: 'auto'
+      }}
+      ref={ref}
+    >
+      {props.code}
+    </div>
+  )
+}
 
 export function BotMessage({ content }: { content: StreamableValue<string> }) {
   const [data, error, pending] = useStreamableValue(content)
@@ -57,6 +94,10 @@ export function BotMessage({ content }: { content: StreamableValue<string> }) {
                 {childArray}
               </code>
             )
+          }
+
+          if (match && match[1] === 'mermaid') {
+            return <Mermaid code={String(childArray)} key={Math.random()} />
           }
 
           return (

@@ -25,6 +25,8 @@ export async function writer(
     Always answer in Markdown format. Links and images must follow the correct format.
     Link format: [link text](url)
     Image format: ![alt text](url)
+    Always show an example of the concept using java code.
+    Always show an example of the concept based in the search results using mermaid code.
     `,
     messages
   })
