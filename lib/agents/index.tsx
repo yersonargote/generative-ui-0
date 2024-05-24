@@ -1,3 +1,4 @@
+export * from './assitant'
 export * from './inquire'
 export * from './query-suggestor'
 export * from './researcher'

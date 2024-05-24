@@ -8,8 +8,10 @@ import { SearchSection } from '@/components/search-section'
 import { Section } from '@/components/section'
 import { Spinner } from '@/components/ui/spinner'
 import { UserMessage } from '@/components/user-message'
+import { YoutubeVideo } from '@/components/youtube'
 import { saveChat } from '@/lib/actions/chat'
 import {
+  assistant,
   inquire,
   querySuggestor,
   researcher,
@@ -180,6 +182,34 @@ async function submit(formData?: FormData, skip?: boolean) {
       streamText.done()
     }
     const res = await resources(uiStream, modifiedMessages)
+    modifiedMessages.push({
+      role: 'assistant',
+      content: res
+    })
+    const { toolCalls, toolResponses, hasError } = await assistant(
+      uiStream,
+      modifiedMessages
+    )
+    toolOutputs = toolResponses
+    errorOccurred = hasError
+
+    if (toolOutputs.length > 0) {
+      toolOutputs.map(output => {
+        aiState.update({
+          ...aiState.get(),
+          messages: [
+            ...aiState.get().messages,
+            {
+              id: groupeId,
+              role: 'tool',
+              content: JSON.stringify(output.result),
+              name: 'youtube',
+              type: 'tool'
+            }
+          ]
+        })
+      })
+    }
 
     if (!errorOccurred) {
       // Generate related queries
@@ -412,6 +442,16 @@ export const getUIStateFromAIState = (aiState: Chat) => {
                 return {
                   id,
                   component: <RetrieveSection data={toolOutput} />,
+                  isCollapsed: isCollapsed.value
+                }
+              case 'youtube':
+                return {
+                  id,
+                  component: (
+                    <Section title="Youtube">
+                      <YoutubeVideo id={toolOutput} />,
+                    </Section>
+                  ),
                   isCollapsed: isCollapsed.value
                 }
             }
