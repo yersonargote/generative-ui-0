@@ -1,7 +1,5 @@
 export * from './inquire'
-export * from './linker'
 export * from './query-suggestor'
 export * from './researcher'
 export * from './resources'
 export * from './task-manager'
-export * from './uml'

@@ -11,12 +11,10 @@ import { UserMessage } from '@/components/user-message'
 import { saveChat } from '@/lib/actions/chat'
 import {
   inquire,
-  linker,
   querySuggestor,
   researcher,
   resources,
-  taskManager,
-  uml
+  taskManager
 } from '@/lib/agents'
 import { writer } from '@/lib/agents/writer'
 import { AIMessage, Chat } from '@/lib/types'
@@ -183,35 +181,6 @@ async function submit(formData?: FormData, skip?: boolean) {
     }
     const res = await resources(uiStream, modifiedMessages)
 
-    // Generate UML diagrams
-    const { toolResponses: umlToolRes } = await uml(answer)
-
-    if (umlToolRes.length > 0) {
-      umlToolRes.map(output => {
-        aiState.update({
-          ...aiState.get(),
-          messages: [
-            ...aiState.get().messages,
-            {
-              id: groupeId,
-              role: 'tool',
-              content: JSON.stringify(output.result),
-              name: output.toolName,
-              type: 'tool'
-            }
-          ]
-        })
-      })
-    }
-    const umlMessages = umlToolRes.map(output => ({
-      role: 'assistant',
-      content: JSON.stringify(output.result),
-      name: output.toolName,
-      type: 'tool'
-    })) as CoreMessage[]
-
-    const linkerRes = await linker(uiStream, umlMessages)
-
     if (!errorOccurred) {
       // Generate related queries
       const relatedQueries = await querySuggestor(uiStream, messages)
@@ -239,20 +208,14 @@ async function submit(formData?: FormData, skip?: boolean) {
           {
             id: groupeId,
             role: 'assistant',
-            content: JSON.stringify(relatedQueries),
-            type: 'related'
-          },
-          {
-            id: groupeId,
-            role: 'assistant',
             content: res,
             type: 'answer'
           },
           {
             id: groupeId,
             role: 'assistant',
-            content: linkerRes,
-            type: 'answer'
+            content: JSON.stringify(relatedQueries),
+            type: 'related'
           },
           {
             id: groupeId,
