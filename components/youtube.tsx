@@ -12,7 +12,7 @@ export function YoutubeVideo({ id }: { id: string }) {
   }
   return (
     <div className="flex flex-col items-center">
-      <YouTube videoId={id} opts={opts} />
+      <YouTube key={id} videoId={id} opts={opts} />
     </div>
   )
 }

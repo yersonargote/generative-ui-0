@@ -1,4 +1,5 @@
 import { auth } from '@/auth'
+import { CodeEditor } from '@/components/code-editor'
 import { CopilotDisplay } from '@/components/copilot-display'
 import { FollowupPanel } from '@/components/followup-panel'
 import { BotMessage } from '@/components/message'
@@ -11,12 +12,12 @@ import { UserMessage } from '@/components/user-message'
 import { YoutubeVideo } from '@/components/youtube'
 import { saveChat } from '@/lib/actions/chat'
 import {
-  assistant,
   inquire,
   querySuggestor,
   researcher,
   resources,
-  taskManager
+  taskManager,
+  uiAssistant
 } from '@/lib/agents'
 import { writer } from '@/lib/agents/writer'
 import { AIMessage, Chat } from '@/lib/types'
@@ -181,20 +182,22 @@ async function submit(formData?: FormData, skip?: boolean) {
     } else {
       streamText.done()
     }
+    modifiedMessages.push({
+      role: 'assistant',
+      content: answer
+    })
     const res = await resources(uiStream, modifiedMessages)
     modifiedMessages.push({
       role: 'assistant',
       content: res
     })
-    const { toolCalls, toolResponses, hasError } = await assistant(
+
+    const { toolResponses: toolResUIAss } = await uiAssistant(
       uiStream,
       modifiedMessages
     )
-    toolOutputs = toolResponses
-    errorOccurred = hasError
-
-    if (toolOutputs.length > 0) {
-      toolOutputs.map(output => {
+    if (toolResUIAss.length > 0) {
+      toolResUIAss.map(output => {
         aiState.update({
           ...aiState.get(),
           messages: [
@@ -203,7 +206,7 @@ async function submit(formData?: FormData, skip?: boolean) {
               id: groupeId,
               role: 'tool',
               content: JSON.stringify(output.result),
-              name: 'youtube',
+              name: output.toolName,
               type: 'tool'
             }
           ]
@@ -448,8 +451,34 @@ export const getUIStateFromAIState = (aiState: Chat) => {
                 return {
                   id,
                   component: (
-                    <Section title="Youtube">
-                      <YoutubeVideo id={toolOutput} />,
+                    <Section title="Videos">
+                      {toolOutput.ids.map(({ id }: { id: string }) => (
+                        <YoutubeVideo key={id} id={id} />
+                      ))}
+                    </Section>
+                  ),
+                  isCollapsed: isCollapsed.value
+                }
+              case 'code':
+                return {
+                  id,
+                  component: (
+                    <Section title="Código">
+                      {toolOutput.snippets.map(
+                        ({
+                          language,
+                          code
+                        }: {
+                          language: string
+                          code: string
+                        }) => (
+                          <CodeEditor
+                            key={code}
+                            code={code}
+                            language={language}
+                          />
+                        )
+                      )}
                     </Section>
                   ),
                   isCollapsed: isCollapsed.value
